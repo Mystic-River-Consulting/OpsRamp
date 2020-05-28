@@ -18,6 +18,9 @@ metric_json = [{
 		"instanceVal": "800",
 		"ts": time.mktime(time.localtime())
 	}]
+# OpsRamp Tenant credentials  Need to protect this data pull from a file
+#with open('OpsRampTenantCredentials.json','r') as f:
+#    client = json.load(f)
 
 # Tenant credentials EDIT THIS SECTION
 client = {
@@ -55,6 +58,11 @@ def post_metric():
     # Create metric
     create_metric_uri = base_api_uri+'/rtypes/'+client['rtype']+'/resources/'+client['resource_guid']+'/metrics'
     json_out = json.dumps(metric_json,indent=4)
+
+    #Insert new values into payload JSON object
+    metric_opsramp_json[0]['instanceVal']="12345" # <--- Place your value variable here
+    metric_opsramp_json[0]['ts']=time.mktime(time.localtime())
+
     print("\nMetic Payload: \n"+json_out)
     r = requests.post(create_metric_uri,headers=access_header,data=json_out)
     print('\nMetric Post Status Code: '+str(r.status_code))
