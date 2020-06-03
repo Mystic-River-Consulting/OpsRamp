@@ -13,25 +13,24 @@ import requests
 # Define the Metric Payload
 # URL: https://docs.pov.opsramp.com/metric-apis/#Save_Metrics_on_a_Resource
 metric_json = [{
-		"metricName": "EnergyUsage",
-		"instanceName": "EnergyUsage",
-		"instanceVal": "800",
-		"ts": time.mktime(time.localtime())
-	}]
-# OpsRamp Tenant credentials  Need to protect this data pull from a file
-#with open('OpsRampTenantCredentials.json','r') as f:
-#    client = json.load(f)
+        "metricName": "EnergyUsage",
+        "instanceVal": "0",
+        "ts": time.mktime(time.localtime())
+    }]
 
-# Tenant credentials EDIT THIS SECTION
-client = {
-    'suffix':'<Suffix>',
-    'tenant_id':'<Client ID>',
-    'rtype':'Linux',
-    'resource_guid':'<Exported Resource GUID>',
-    'key':'<Exported Key>',
-    'secret':'<Exported Secret>'
-}
+# Tenant credentials
+# client = {
+#     'suffix':'mysticriver',
+#     'tenant_id':'client_88',
+#     'rtype':'Linux',
+#     'resource_guid':'<resource GUID>',
+#     'key':'<OAuth Key>',
+#     'secret':'<OAuth Secret>'
+# }
 
+with open('OpsRampTenantCredentials.json','r') as f:
+    client = json.load(f)
+    
 # Build Base URIs
 base_uri = 'https://'+client['suffix']+'.api.pov.opsramp.com'
 base_api_uri = base_uri+'/api/v2/metric/tenants/'+client['tenant_id']
@@ -57,17 +56,23 @@ def build_access_header():
 def post_metric():
     # Create metric
     create_metric_uri = base_api_uri+'/rtypes/'+client['rtype']+'/resources/'+client['resource_guid']+'/metrics'
-    json_out = json.dumps(metric_json,indent=4)
-
-    #Insert new values into payload JSON object
-    metric_opsramp_json[0]['instanceVal']="12345" # <--- Place your value variable here
-    metric_opsramp_json[0]['ts']=time.mktime(time.localtime())
-
+    # Unpack JSON object into string
+    json_out = json.dumps(metric_json,indent=4) 
     print("\nMetic Payload: \n"+json_out)
     r = requests.post(create_metric_uri,headers=access_header,data=json_out)
     print('\nMetric Post Status Code: '+str(r.status_code))
     if r.status_code != 200:
         print('\nFailed Metric Post Response: ' + str(r.content))
 
-build_access_header()
-post_metric()
+
+# Dummy data generation stub
+values = ["300","400","500","500","500","1200","1200","1200","1200","1200","1500","1500","2000","2000","3000","4000","5000","5000","5000","2000","300","400","500","500","500","1200","1200","1200","1200","1200","1500","1500","2000","2000","3000","4000","5000","5000","5000","2000"]
+for i in values:
+    print (i)
+    for a in range(12):
+        build_access_header()
+        for item in metric_json:
+            item['instanceVal']=i
+            item['ts']=time.mktime(time.localtime())
+        post_metric()
+        time.sleep(60)
